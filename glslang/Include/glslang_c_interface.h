@@ -162,6 +162,7 @@ typedef struct glslang_input_s {
     glslang_target_language_version_t target_language_version;
     /** Shader source code */
     const char* code;
+    int length;
     int default_version;
     glslang_profile_t default_profile;
     int force_default_version_and_profile;

@@ -340,7 +340,7 @@ GLSLANG_EXPORT glslang_shader_t* glslang_shader_create(const glslang_input_t* in
     glslang_shader_t* shader = new glslang_shader_t();
 
     shader->shader = new glslang::TShader(c_shader_stage(input->stage));
-    shader->shader->setStrings(&input->code, 1);
+    shader->shader->setStringsWithLengths(&input->code, &input->length, 1);
     shader->shader->setEnvInput(c_shader_source(input->language), c_shader_stage(input->stage),
                                 c_shader_client(input->client), input->default_version);
     shader->shader->setEnvClient(c_shader_client(input->client), c_shader_client_version(input->client_version));
