@@ -597,6 +597,8 @@ bool TOutputTraverser::visitUnary(TVisit /* visit */, TIntermUnary* node)
     case EOpSubgroupQuadSwapHorizontal:      out.debug << "subgroupQuadSwapHorizontal";      break;
     case EOpSubgroupQuadSwapVertical:        out.debug << "subgroupQuadSwapVertical";        break;
     case EOpSubgroupQuadSwapDiagonal:        out.debug << "subgroupQuadSwapDiagonal";        break;
+    case EOpSubgroupQuadAll:                 out.debug << "subgroupQuadAll";                 break;
+    case EOpSubgroupQuadAny:                 out.debug << "subgroupQuadAny";                 break;
 
     case EOpSubgroupPartition:                          out.debug << "subgroupPartitionNV";                          break;
     case EOpSubgroupPartitionedAdd:                     out.debug << "subgroupPartitionedAddNV";                     break;
@@ -1032,6 +1034,8 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpSubgroupQuadSwapHorizontal:      out.debug << "subgroupQuadSwapHorizontal"; break;
     case EOpSubgroupQuadSwapVertical:        out.debug << "subgroupQuadSwapVertical"; break;
     case EOpSubgroupQuadSwapDiagonal:        out.debug << "subgroupQuadSwapDiagonal"; break;
+    case EOpSubgroupQuadAll:                 out.debug << "subgroupQuadAll"; break;
+    case EOpSubgroupQuadAny:                 out.debug << "subgroupQuadAny"; break;
 
     case EOpSubgroupPartition:                          out.debug << "subgroupPartitionNV";                          break;
     case EOpSubgroupPartitionedAdd:                     out.debug << "subgroupPartitionedAddNV";                     break;
@@ -1141,6 +1145,8 @@ bool TOutputTraverser::visitAggregate(TVisit /* visit */, TIntermAggregate* node
     case EOpHitObjectGetShaderBindingTableRecordIndexNV: out.debug << "HitObjectGetShaderBindingTableRecordIndexNV"; break;
     case EOpHitObjectGetShaderRecordBufferHandleNV: out.debug << "HitObjectReadShaderRecordBufferHandleNV"; break;
     case EOpReorderThreadNV: out.debug << "ReorderThreadNV"; break;
+    case EOpFetchMicroTriangleVertexPositionNV: out.debug << "MicroTriangleVertexPositionNV"; break;
+    case EOpFetchMicroTriangleVertexBarycentricNV: out.debug << "MicroTriangleVertexBarycentricNV"; break;
 
     case EOpSpirvInst: out.debug << "spirv_instruction"; break;
     case EOpStencilAttachmentReadEXT: out.debug << "stencilAttachmentReadEXT"; break;
@@ -1206,12 +1212,12 @@ bool TOutputTraverser::visitSelection(TVisit /* visit */, TIntermSelection* node
 //   - shows all digits, no premature rounding
 static void OutputDouble(TInfoSink& out, double value, TOutputTraverser::EExtraOutput extra)
 {
-    if (IsInfinity(value)) {
+    if (std::isinf(value)) {
         if (value < 0)
             out.debug << "-1.#INF";
         else
             out.debug << "+1.#INF";
-    } else if (IsNan(value))
+    } else if (std::isnan(value))
         out.debug << "1.#IND";
     else {
         const int maxSize = 340;
@@ -1509,6 +1515,9 @@ void TIntermediate::output(TInfoSink& infoSink, bool tree)
 
     if (getSubgroupUniformControlFlow())
         infoSink.debug << "subgroup_uniform_control_flow\n";
+
+    if (getMaximallyReconverges())
+        infoSink.debug << "maximally_reconverges\n";
 
     switch (language) {
     case EShLangVertex:

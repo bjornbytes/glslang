@@ -436,6 +436,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.matFun.vert",
         "spv.matrix.frag",
         "spv.matrix2.frag",
+        "spv.maximalReconvergence.vert",
         "spv.memoryQualifier.frag",
         "spv.merge-unreachable.frag",
         "spv.multiStruct.comp",
@@ -514,6 +515,9 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.specConstant.float16.comp",
         "spv.specConstant.int16.comp",
         "spv.specConstant.int8.comp",
+        "spv.specConstantOp.int16.comp",
+        "spv.specConstantOp.int8.comp",
+        "spv.specConstantOp.float16.comp",
         "spv.storageBuffer.vert",
         "spv.terminate.frag",
         "spv.subgroupUniformControlFlow.vert",
@@ -537,8 +541,8 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.atomicAdd.bufferReference.comp",
         "spv.fragmentShaderBarycentric3.frag",
         "spv.fragmentShaderBarycentric4.frag",
-        "spv.ext.texture_shadow_lod.frag",
-        "spv.ext.texture_shadow_lod.error.frag",
+        "spv.ext.textureShadowLod.frag",
+        "spv.ext.textureShadowLod.error.frag",
         "spv.floatFetch.frag",
         "spv.atomicRvalue.error.vert",
     })),
@@ -708,6 +712,15 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.nv.hitobject-allops.rgen",
         "spv.nv.hitobject-allops.rchit",
         "spv.nv.hitobject-allops.rmiss",
+
+
+        // SPV_NV_displacment_micromap
+
+        "spv.nv.dmm-allops.rgen",
+        "spv.nv.dmm-allops.rchit",
+        "spv.nv.dmm-allops.rahit",
+        "spv.nv.dmm-allops.mesh",
+        "spv.nv.dmm-allops.comp",
     })),
     FileNameAsCustomTestSuffix
 );
@@ -722,6 +735,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.1.6.specConstant.comp",
         "spv.1.6.samplerBuffer.frag",
         "spv.1.6.separate.frag",
+        "spv.1.6.quad.frag",
     })),
     FileNameAsCustomTestSuffix
 );
@@ -922,6 +936,7 @@ INSTANTIATE_TEST_SUITE_P(
         "spv.debuginfo.glsl.geom",
         "spv.debuginfo.glsl.tesc",
         "spv.debuginfo.glsl.tese",
+        "spv.debuginfo.bufferref.glsl.frag",
         "spv.debuginfo.const_params.glsl.comp",
         "spv.debuginfo.scalar_types.glsl.frag",
     })),

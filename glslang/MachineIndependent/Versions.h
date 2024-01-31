@@ -215,6 +215,10 @@ const char* const E_GL_EXT_spirv_intrinsics                 = "GL_EXT_spirv_intr
 const char* const E_GL_EXT_fragment_shader_barycentric      = "GL_EXT_fragment_shader_barycentric";
 const char* const E_GL_EXT_mesh_shader                      = "GL_EXT_mesh_shader";
 const char* const E_GL_EXT_opacity_micromap                 = "GL_EXT_opacity_micromap";
+const char* const E_GL_EXT_shader_quad_control              = "GL_EXT_shader_quad_control";
+const char* const E_GL_EXT_draw_instanced                   = "GL_EXT_draw_instanced";
+const char* const E_GL_EXT_texture_array                    = "GL_EXT_texture_array";
+const char* const E_GL_EXT_maximal_reconvergence            = "GL_EXT_maximal_reconvergence";
 
 // Arrays of extensions for the above viewportEXTs duplications
 
@@ -266,7 +270,12 @@ const char* const E_GL_NV_fragment_shader_barycentric           = "GL_NV_fragmen
 const char* const E_GL_NV_compute_shader_derivatives            = "GL_NV_compute_shader_derivatives";
 const char* const E_GL_NV_shader_texture_footprint              = "GL_NV_shader_texture_footprint";
 const char* const E_GL_NV_mesh_shader                           = "GL_NV_mesh_shader";
+const char* const E_GL_NV_cooperative_matrix                    = "GL_NV_cooperative_matrix";
+const char* const E_GL_NV_shader_sm_builtins                    = "GL_NV_shader_sm_builtins";
+const char* const E_GL_NV_integer_cooperative_matrix            = "GL_NV_integer_cooperative_matrix";
+const char* const E_GL_NV_shader_invocation_reorder             = "GL_NV_shader_invocation_reorder";
 const char* const E_GL_EXT_ray_tracing_position_fetch           = "GL_EXT_ray_tracing_position_fetch";
+const char* const E_GL_NV_displacement_micromap                 = "GL_NV_displacement_micromap";
 
 // ARM
 const char* const E_GL_ARM_shader_core_builtins                 = "GL_ARM_shader_core_builtins";
@@ -276,10 +285,6 @@ const char* const E_GL_ARM_shader_core_builtins                 = "GL_ARM_shader
 const char* const viewportEXTs[] = { E_GL_ARB_shader_viewport_layer_array, E_GL_NV_viewport_array2 };
 const int Num_viewportEXTs = sizeof(viewportEXTs) / sizeof(viewportEXTs[0]);
 
-const char* const E_GL_NV_cooperative_matrix                    = "GL_NV_cooperative_matrix";
-const char* const E_GL_NV_shader_sm_builtins                    = "GL_NV_shader_sm_builtins";
-const char* const E_GL_NV_integer_cooperative_matrix            = "GL_NV_integer_cooperative_matrix";
-const char* const E_GL_NV_shader_invocation_reorder             = "GL_NV_shader_invocation_reorder";
 
 const char* const E_GL_QCOM_image_processing                    = "GL_QCOM_image_processing";
 

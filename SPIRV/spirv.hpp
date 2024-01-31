@@ -174,6 +174,8 @@ enum ExecutionMode {
     ExecutionModeStencilRefUnchangedBackAMD = 5082,
     ExecutionModeStencilRefGreaterBackAMD = 5083,
     ExecutionModeStencilRefLessBackAMD = 5084,
+    ExecutionModeQuadDerivativesKHR  = 5088,
+    ExecutionModeRequireFullQuadsKHR = 5089,
     ExecutionModeOutputLinesEXT = 5269,
     ExecutionModeOutputLinesNV = 5269,
     ExecutionModeOutputPrimitivesEXT = 5270,
@@ -198,6 +200,7 @@ enum ExecutionMode {
     ExecutionModeNoGlobalOffsetINTEL = 5895,
     ExecutionModeNumSIMDWorkitemsINTEL = 5896,
     ExecutionModeSchedulerTargetFmaxMhzINTEL = 5903,
+    ExecutionModeMaximallyReconvergesKHR = 6023,
     ExecutionModeStreamingInterfaceINTEL = 6154,
     ExecutionModeNamedBarrierCountINTEL = 6417,
     ExecutionModeMax = 0x7fffffff,
@@ -720,6 +723,10 @@ enum BuiltIn {
     BuiltInHitKindNV = 5333,
     BuiltInCurrentRayTimeNV = 5334,
     BuiltInHitTriangleVertexPositionsKHR = 5335,
+    BuiltInHitMicroTriangleVertexPositionsNV = 5337,
+    BuiltInHitMicroTriangleVertexBarycentricsNV = 5344,
+    BuiltInHitKindFrontFacingMicroTriangleNV = 5405,
+    BuiltInHitKindBackFacingMicroTriangleNV = 5406,
     BuiltInIncomingRayFlagsKHR = 5351,
     BuiltInIncomingRayFlagsNV = 5351,
     BuiltInRayGeometryIndexKHR = 5352,
@@ -1035,6 +1042,7 @@ enum Capability {
     CapabilityImageReadWriteLodAMD = 5015,
     CapabilityInt64ImageEXT = 5016,
     CapabilityShaderClockKHR = 5055,
+    CapabilityQuadControlKHR = 5087,
     CapabilitySampleMaskOverrideCoverageNV = 5249,
     CapabilityGeometryShaderPassthroughNV = 5251,
     CapabilityShaderViewportIndexLayerEXT = 5254,
@@ -1094,6 +1102,8 @@ enum Capability {
     CapabilityFragmentShaderPixelInterlockEXT = 5378,
     CapabilityDemoteToHelperInvocation = 5379,
     CapabilityDemoteToHelperInvocationEXT = 5379,
+    CapabilityDisplacementMicromapNV = 5380,
+    CapabilityRayTracingDisplacementMicromapNV = 5409,
     CapabilityRayTracingOpacityMicromapEXT = 5381,
     CapabilityShaderInvocationReorderNV = 5383,
     CapabilityBindlessTextureNV = 5390,
@@ -1268,26 +1278,26 @@ enum PackedVectorFormat {
 };
 
 enum CooperativeMatrixOperandsShift {
-    CooperativeMatrixOperandsMatrixASignedComponentsShift = 0,
-    CooperativeMatrixOperandsMatrixBSignedComponentsShift = 1,
-    CooperativeMatrixOperandsMatrixCSignedComponentsShift = 2,
-    CooperativeMatrixOperandsMatrixResultSignedComponentsShift = 3,
-    CooperativeMatrixOperandsSaturatingAccumulationShift = 4,
+    CooperativeMatrixOperandsMatrixASignedComponentsKHRShift = 0,
+    CooperativeMatrixOperandsMatrixBSignedComponentsKHRShift = 1,
+    CooperativeMatrixOperandsMatrixCSignedComponentsKHRShift = 2,
+    CooperativeMatrixOperandsMatrixResultSignedComponentsKHRShift = 3,
+    CooperativeMatrixOperandsSaturatingAccumulationKHRShift = 4,
     CooperativeMatrixOperandsMax = 0x7fffffff,
 };
 
 enum CooperativeMatrixOperandsMask {
     CooperativeMatrixOperandsMaskNone = 0,
-    CooperativeMatrixOperandsMatrixASignedComponentsMask = 0x00000001,
-    CooperativeMatrixOperandsMatrixBSignedComponentsMask = 0x00000002,
-    CooperativeMatrixOperandsMatrixCSignedComponentsMask = 0x00000004,
-    CooperativeMatrixOperandsMatrixResultSignedComponentsMask = 0x00000008,
-    CooperativeMatrixOperandsSaturatingAccumulationMask = 0x00000010,
+    CooperativeMatrixOperandsMatrixASignedComponentsKHRMask = 0x00000001,
+    CooperativeMatrixOperandsMatrixBSignedComponentsKHRMask = 0x00000002,
+    CooperativeMatrixOperandsMatrixCSignedComponentsKHRMask = 0x00000004,
+    CooperativeMatrixOperandsMatrixResultSignedComponentsKHRMask = 0x00000008,
+    CooperativeMatrixOperandsSaturatingAccumulationKHRMask = 0x00000010,
 };
 
 enum CooperativeMatrixLayout {
-    CooperativeMatrixLayoutCooperativeMatrixRowMajorKHR = 0,
-    CooperativeMatrixLayoutCooperativeMatrixColumnMajorKHR = 1,
+    CooperativeMatrixLayoutRowMajorKHR = 0,
+    CooperativeMatrixLayoutColumnMajorKHR = 1,
     CooperativeMatrixLayoutMax = 0x7fffffff,
 };
 
@@ -1698,6 +1708,8 @@ enum Op {
     OpFragmentMaskFetchAMD = 5011,
     OpFragmentFetchAMD = 5012,
     OpReadClockKHR = 5056,
+    OpGroupNonUniformQuadAllKHR = 5110,
+    OpGroupNonUniformQuadAnyKHR = 5111,
     OpHitObjectRecordHitMotionNV = 5249,
     OpHitObjectRecordHitWithIndexMotionNV = 5250,
     OpHitObjectRecordMissMotionNV = 5251,
@@ -1736,6 +1748,8 @@ enum Op {
     OpSetMeshOutputsEXT = 5295,
     OpGroupNonUniformPartitionNV = 5296,
     OpWritePackedPrimitiveIndices4x8NV = 5299,
+    OpFetchMicroTriangleVertexPositionNV = 5300,
+    OpFetchMicroTriangleVertexBarycentricNV = 5301,
     OpReportIntersectionKHR = 5334,
     OpReportIntersectionNV = 5334,
     OpIgnoreIntersectionNV = 5335,
@@ -2366,6 +2380,8 @@ inline void HasResultAndType(Op opcode, bool *hasResult, bool *hasResultType) {
     case OpGroupNonUniformLogicalXor: *hasResult = true; *hasResultType = true; break;
     case OpGroupNonUniformQuadBroadcast: *hasResult = true; *hasResultType = true; break;
     case OpGroupNonUniformQuadSwap: *hasResult = true; *hasResultType = true; break;
+    case OpGroupNonUniformQuadAllKHR: *hasResult = true; *hasResultType = true; break;
+    case OpGroupNonUniformQuadAnyKHR: *hasResult = true; *hasResultType = true; break;
     case OpCopyLogical: *hasResult = true; *hasResultType = true; break;
     case OpPtrEqual: *hasResult = true; *hasResultType = true; break;
     case OpPtrNotEqual: *hasResult = true; *hasResultType = true; break;

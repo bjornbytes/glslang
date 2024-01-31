@@ -46,20 +46,22 @@
 #include "DirStackFileIncluder.h"
 #include "./../glslang/Include/ShHandle.h"
 #include "./../glslang/Public/ShaderLang.h"
+#include "../glslang/MachineIndependent/localintermediate.h"
 #include "../SPIRV/GlslangToSpv.h"
 #include "../SPIRV/GLSL.std.450.h"
 #include "../SPIRV/doc.h"
 #include "../SPIRV/disassemble.h"
 
-#include <cstring>
-#include <cstdlib>
+#include <array>
+#include <atomic>
 #include <cctype>
 #include <cmath>
-#include <array>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include <memory>
-#include <thread>
 #include <set>
+#include <thread>
 
 #include "../glslang/OSDependent/osinclude.h"
 
@@ -144,8 +146,9 @@ void FreeFileData(char* data);
 void InfoLogMsg(const char* msg, const char* name, const int num);
 
 // Globally track if any compile or link failure.
-bool CompileFailed = false;
-bool LinkFailed = false;
+std::atomic<int8_t> CompileFailed{0};
+std::atomic<int8_t> LinkFailed{0};
+std::atomic<int8_t> CompileOrLinkFailed{0};
 
 // array of unique places to leave the shader names and infologs for the asynchronous compiles
 std::vector<std::unique_ptr<glslang::TWorkItem>> WorkItems;
@@ -514,7 +517,7 @@ void ProcessGlobalBlockSettings(int& argc, char**& argv, std::string* name, unsi
 
     if (set) {
         errno = 0;
-        int setVal = ::strtol(argv[curArg], nullptr, 10);
+        int setVal = static_cast<int>(::strtol(argv[curArg], nullptr, 10));
         if (errno || setVal < 0) {
             printf("%s: invalid set\n", argv[curArg]);
             usage();
@@ -526,7 +529,7 @@ void ProcessGlobalBlockSettings(int& argc, char**& argv, std::string* name, unsi
 
     if (binding) {
         errno = 0;
-        int bindingVal = ::strtol(argv[curArg], nullptr, 10);
+        int bindingVal = static_cast<int>(::strtol(argv[curArg], nullptr, 10));
         if (errno || bindingVal < 0) {
             printf("%s: invalid binding\n", argv[curArg]);
             usage();
@@ -609,7 +612,7 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
             exit(EFailUsage);
         }
         errno = 0;
-        int location = ::strtol(split + 1, nullptr, 10);
+        int location = static_cast<int>(::strtol(split + 1, nullptr, 10));
         if (errno) {
             printf("%s: invalid location\n", arg);
             exit(EFailUsage);
@@ -636,7 +639,7 @@ void ProcessArguments(std::vector<std::unique_ptr<glslang::TWorkItem>>& workItem
                     } else if (lowerword == "uniform-base") {
                         if (argc <= 1)
                             Error("no <base> provided", lowerword.c_str());
-                        uniformBase = ::strtol(argv[1], nullptr, 10);
+                        uniformBase = static_cast<int>(::strtol(argv[1], nullptr, 10));
                         bumpArg();
                         break;
                     } else if (lowerword == "client") {
@@ -1166,10 +1169,11 @@ void CompileShaders(glslang::TWorklist& worklist)
     if (Options & EOptionDebug)
         Error("cannot generate debug information unless linking to generate code");
 
+    // NOTE: TWorkList::remove is thread-safe
     glslang::TWorkItem* workItem;
     if (Options & EOptionStdin) {
         if (worklist.remove(workItem)) {
-            ShHandle compiler = ShConstructCompiler(FindLanguage("stdin"), Options);
+            ShHandle compiler = ShConstructCompiler(FindLanguage("stdin"), 0);
             if (compiler == nullptr)
                 return;
 
@@ -1182,7 +1186,7 @@ void CompileShaders(glslang::TWorklist& worklist)
         }
     } else {
         while (worklist.remove(workItem)) {
-            ShHandle compiler = ShConstructCompiler(FindLanguage(workItem->name), Options);
+            ShHandle compiler = ShConstructCompiler(FindLanguage(workItem->name), 0);
             if (compiler == nullptr)
                 return;
 
@@ -1442,7 +1446,7 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
             if (shader->preprocess(GetResources(), defaultVersion, ENoProfile, false, false, messages, &str, includer)) {
                 PutsIfNonEmpty(str.c_str());
             } else {
-                CompileFailed = true;
+                CompileFailed = 1;
             }
             StderrIfNonEmpty(shader->getInfoLog());
             StderrIfNonEmpty(shader->getInfoDebugLog());
@@ -1450,7 +1454,7 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
         }
 
         if (! shader->parse(GetResources(), defaultVersion, false, messages, includer))
-            CompileFailed = true;
+            CompileFailed = 1;
 
         if (!compileOnly)
             program.addShader(shader);
@@ -1496,7 +1500,9 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
 
     // Dump SPIR-V
     if (Options & EOptionSpv) {
-        if (CompileFailed || LinkFailed)
+        CompileOrLinkFailed.fetch_or(CompileFailed);
+        CompileOrLinkFailed.fetch_or(LinkFailed);
+        if (static_cast<bool>(CompileOrLinkFailed.load()))
             printf("SPIR-V is not generated for failed compile or link\n");
         else {
             std::vector<glslang::TIntermediate*> intermediates;
@@ -1555,7 +1561,9 @@ void CompileAndLinkShaderUnits(std::vector<ShaderCompUnit> compUnits)
         }
     }
 
-    if (depencyFileName && !(CompileFailed || LinkFailed)) {
+    CompileOrLinkFailed.fetch_or(CompileFailed);
+    CompileOrLinkFailed.fetch_or(LinkFailed);
+    if (depencyFileName && !static_cast<bool>(CompileOrLinkFailed.load())) {
         std::set<std::string> includedFiles = includer.getIncludedFiles();
         sources.insert(sources.end(), includedFiles.begin(), includedFiles.end());
 
@@ -1731,9 +1739,9 @@ int singleMain()
         ShFinalize();
     }
 
-    if (CompileFailed)
+    if (CompileFailed.load())
         return EFailCompile;
-    if (LinkFailed)
+    if (LinkFailed.load())
         return EFailLink;
 
     return 0;
@@ -1869,7 +1877,8 @@ void CompileFile(const char* fileName, ShHandle compiler)
     for (int i = 0; i < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++i) {
         for (int j = 0; j < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++j) {
             // ret = ShCompile(compiler, shaderStrings, NumShaderStrings, lengths, EShOptNone, &Resources, Options, (Options & EOptionDefaultDesktop) ? 110 : 100, false, messages);
-            ret = ShCompile(compiler, &shaderString, 1, nullptr, EShOptNone, GetResources(), Options, (Options & EOptionDefaultDesktop) ? 110 : 100, false, messages);
+            ret = ShCompile(compiler, &shaderString, 1, nullptr, EShOptNone, GetResources(), 0,
+                            (Options & EOptionDefaultDesktop) ? 110 : 100, false, messages);
             // const char* multi[12] = { "# ve", "rsion", " 300 e", "s", "\n#err",
             //                         "or should be l", "ine 1", "string 5\n", "float glo", "bal",
             //                         ";\n#error should be line 2\n void main() {", "global = 2.3;}" };
