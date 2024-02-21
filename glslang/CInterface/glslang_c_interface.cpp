@@ -309,19 +309,10 @@ static EProfile c_shader_profile(glslang_profile_t profile)
 
 GLSLANG_EXPORT glslang_shader_t* glslang_shader_create(const glslang_input_t* input)
 {
-    if (!input || !input->code) {
-        printf("Error creating shader: null input(%p)/input->code\n", input);
-
-        if (input)
-            printf("input->code = %p\n", input->code);
-
-        return nullptr;
-    }
-
     glslang_shader_t* shader = new glslang_shader_t();
 
     shader->shader = new glslang::TShader(c_shader_stage(input->stage));
-    shader->shader->setStrings(&input->code, 1);
+    shader->shader->setStringsWithLengths(input->strings, input->lengths, input->string_count);
     shader->shader->setEnvInput(c_shader_source(input->language), c_shader_stage(input->stage),
                                 c_shader_client(input->client), input->default_version);
     shader->shader->setEnvClient(c_shader_client(input->client), c_shader_client_version(input->client_version));
