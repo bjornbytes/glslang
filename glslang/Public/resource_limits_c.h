@@ -45,7 +45,7 @@ const glslang_resource_t* glslang_default_resource(void);
 
 // Returns the DefaultTBuiltInResource as a human-readable string.
 // NOTE: User is responsible for freeing this string.
-const char* glslang_default_resource_string();
+const char* glslang_default_resource_string(void);
 
 // Decodes the resource limits from |config| to |resources|.
 void glslang_decode_resource_limits(glslang_resource_t* resources, char* config);
